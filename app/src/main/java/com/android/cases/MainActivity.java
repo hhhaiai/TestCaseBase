@@ -31,12 +31,12 @@ public class MainActivity extends Activity {
             ts.addCase(new ETestCase1());
             ts.addCase(new ETestCase2());
         }
-       CaseHelper.addSuite(ts);
+        CaseHelper.addSuite(ts);
         ETestSuite ts2 = new ETestSuite("测试分组2");
         for (int i = 0; i < 4; i++) {
             ts2.addCase(new ETestCase1());
             ts2.addCase(new ETestCase2());
         }
-       CaseHelper.addSuite(ts2);
+        CaseHelper.addSuite(ts2);
     }
 }
