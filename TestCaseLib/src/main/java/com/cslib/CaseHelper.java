@@ -8,6 +8,13 @@ import com.cslib.defcase.ETestSuite;
 import com.cslib.page.ECaseHolder;
 import com.cslib.page.ListPage;
 
+/**
+ * @Copyright © 2021 analsys Inc. All rights reserved.
+ * @Description: TODO
+ * @Version: 1.0
+ * @Create: 2021/03/63 09:57:28
+ * @author: sanbo
+ */
 public class CaseHelper {
     public static void openCasePage(Context context) {
         if (context != null) {
@@ -23,4 +30,6 @@ public class CaseHelper {
             ECaseHolder.getInstance().addSuite(suite);
         }
     }
+
+
 }

@@ -5,7 +5,11 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import com.cslib.CaseHelper;
+import com.cslib.cuscase.ECaseManager;
+import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
+
+import java.util.Set;
 
 
 /**
@@ -38,5 +42,25 @@ public class MainActivity extends Activity {
             ts2.addCase(new ETestCase2());
         }
         CaseHelper.addSuite(ts2);
+
+
+        ETestSuite tname = new ETestSuite("类名定义case");
+
+        ECaseManager.getInstance().getCase(GoHomeCase.class);
+        final Set<Class<?>> cases = ECaseManager.getInstance().getCases();
+        for (final Class<?> aCase : cases) {
+            tname.addCase(new ETestCase(aCase.getSimpleName()) {
+                @Override
+                public void prepare() {
+                    ECaseManager.getInstance().getCase(aCase).prepare();
+                }
+
+                @Override
+                public boolean predicate() {
+                    return ECaseManager.getInstance().getCase(aCase).validate();
+                }
+            });
+        }
+        CaseHelper.addSuite(tname);
     }
 }
