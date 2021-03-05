@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cslib.R;
 import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
+import com.cslib.utils.L;
 
 import java.util.List;
 
@@ -33,11 +34,15 @@ public class ListPage extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_page);
-
-        listView = findViewById(R.id.list);
-        allSuites = ECaseHolder.getInstance().getAllSuites();
-        ExpandableListAdapter adapter = new MyAdapter();
-        listView.setAdapter(adapter);
+        try {
+            setTitle("Case列表页面");
+            listView = findViewById(R.id.list);
+            allSuites = ECaseHolder.getInstance().getAllSuites();
+            ExpandableListAdapter adapter = new MyAdapter();
+            listView.setAdapter(adapter);
+        } catch (Throwable e) {
+            L.e(e);
+        }
     }
 
     private class MyAdapter extends BaseExpandableListAdapter {
