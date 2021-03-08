@@ -1,6 +1,7 @@
 package com.cslib.page;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,13 +30,18 @@ import java.util.List;
 public class ListPage extends Activity {
     ExpandableListView listView;
     List<ETestSuite> allSuites;
+    public static Context mContext = null;
+    public static boolean isOn = false;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.list_page);
+        mContext = this;
+
         try {
-            setTitle("Case列表页面");
+            setTitle(getString(R.string.page_title));
             listView = findViewById(R.id.list);
             allSuites = ECaseHolder.getInstance().getAllSuites();
             ExpandableListAdapter adapter = new MyAdapter();
@@ -44,6 +50,20 @@ public class ListPage extends Activity {
             L.e(e);
         }
     }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isOn = true;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isOn = false;
+    }
+
 
     private class MyAdapter extends BaseExpandableListAdapter {
 
@@ -54,7 +74,7 @@ public class ListPage extends Activity {
 
         @Override
         public int getChildrenCount(int groupPosition) {
-            return allSuites.get(groupPosition).getAllCases().size();
+            return allSuites.get(groupPosition).getAllCasesList().size();
         }
 
         @Override
@@ -64,7 +84,7 @@ public class ListPage extends Activity {
 
         @Override
         public ETestCase getChild(int groupPosition, int childPosition) {
-            return allSuites.get(groupPosition).getAllCases().get(childPosition);
+            return allSuites.get(groupPosition).getAllCasesList().get(childPosition);
         }
 
         @Override
@@ -102,10 +122,10 @@ public class ListPage extends Activity {
             final ETestCase child = getChild(groupPosition, childPosition);
 
             final View childView = View.inflate(parent.getContext(), R.layout.child_layout, null);
-            final TextView title = childView.findViewById(R.id.label);
+            final TextView title = childView.findViewById(R.id.tvLabel);
             title.setText(child.getName());
 
-            Button test = childView.findViewById(R.id.test);
+            Button test = childView.findViewById(R.id.btnPrepare);
             test.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -113,7 +133,7 @@ public class ListPage extends Activity {
                 }
             });
 
-            Button validate = childView.findViewById(R.id.validate);
+            Button validate = childView.findViewById(R.id.btnValidate);
             validate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

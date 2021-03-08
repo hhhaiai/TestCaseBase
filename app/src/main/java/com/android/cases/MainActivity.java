@@ -1,13 +1,16 @@
 package com.android.cases;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 
 import com.cslib.CaseHelper;
 import com.cslib.cuscase.ECaseManager;
 import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
+import com.cslib.utils.L;
 
 import java.util.Set;
 
@@ -25,23 +28,32 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         addCases();
-        CaseHelper.openCasePage(this);
     }
 
     private void addCases() {
-        ETestSuite ts = new ETestSuite("测试分组1");
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 3; i++) {
+            ETestSuite ts = new ETestSuite("测试分组1");
             ts.addCase(new ETestCase1());
             ts.addCase(new ETestCase2());
-        }
-        CaseHelper.addSuite(ts);
-        ETestSuite ts2 = new ETestSuite("测试分组2");
-        for (int i = 0; i < 4; i++) {
+            ts.addCase(new ETestCase3());
+            CaseHelper.addSuite(ts);
+            ETestSuite ts2 = new ETestSuite("测试分组2");
             ts2.addCase(new ETestCase1());
             ts2.addCase(new ETestCase2());
+            ts2.addCase(new ETestCase3());
+            CaseHelper.addSuite(ts2);
+            ETestSuite ts3 = new ETestSuite();
+            ts3.addCase(new ETestCase1());
+            ts3.addCase(new ETestCase2());
+            ts3.addCase(new ETestCase3());
+            CaseHelper.addSuite(ts3);
         }
-        CaseHelper.addSuite(ts2);
 
 
         ETestSuite tname = new ETestSuite("类名定义case");
@@ -62,5 +74,17 @@ public class MainActivity extends Activity {
             });
         }
         CaseHelper.addSuite(tname);
+    }
+
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btnGG:
+                Context c = CaseHelper.getCaseContext();
+                L.i("context: " + c);
+                CaseHelper.openCasePage(this);
+                break;
+            default:
+                break;
+        }
     }
 }

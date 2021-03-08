@@ -32,4 +32,13 @@ public class CaseHelper {
     }
 
 
+    public static Context getCaseContext() {
+        if (ListPage.isOn) {
+            return ListPage.mContext;
+        } else {
+            return null;
+        }
+    }
+
+
 }

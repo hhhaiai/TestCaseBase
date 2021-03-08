@@ -1,7 +1,12 @@
 package com.cslib.defcase;
 
-import java.util.ArrayList;
+import android.text.TextUtils;
+
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -11,22 +16,46 @@ import java.util.List;
  * @author: sanbo
  */
 public class ETestSuite {
-    private String name;
-    private List<ETestCase> cases = new ArrayList<>();
 
+
+    public ETestSuite() {
+        this("");
+    }
     public ETestSuite(String name) {
-        this.name = name;
+        if (TextUtils.isEmpty(name)) {
+            this.mName = getClass().getName();
+        } else {
+            this.mName = name;
+        }
     }
 
     public void addCase(ETestCase caze) {
-        cases.add(caze);
+        String caseName = caze.getName();
+        if (!caseMap.containsKey(caseName)) {
+            caseMap.put(caseName, caze);
+        }
     }
 
     public String getName() {
-        return name;
+        return mName;
     }
 
-    public List<ETestCase> getAllCases() {
-        return cases;
+    public List<ETestCase> getAllCasesList() {
+        CopyOnWriteArrayList<ETestCase> result = new CopyOnWriteArrayList<ETestCase>();
+        if (caseMap.size() > 0) {
+            Iterator<Map.Entry<String, ETestCase>> iterator = caseMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, ETestCase> entry = iterator.next();
+                result.add(entry.getValue());
+            }
+        }
+        return result;
     }
+
+    public Map<String, ETestCase> getAllCasesMap() {
+        return caseMap;
+    }
+
+    private String mName;
+    private Map<String, ETestCase> caseMap = new HashMap<String, ETestCase>();
 }

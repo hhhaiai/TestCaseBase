@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prepare">prepare</string>
+    <string name="validate">validate</string>
+    <string name="page_title">Case List Page</string>
+
+</resources>

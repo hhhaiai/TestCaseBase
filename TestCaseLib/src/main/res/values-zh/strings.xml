@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="prepare">准备</string>
+    <string name="validate">验证</string>
+    <string name="page_title">Case列表页面</string>
+</resources>

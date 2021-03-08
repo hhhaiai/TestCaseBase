@@ -1,6 +1,8 @@
 package com.cslib.defcase;
 
 
+import android.text.TextUtils;
+
 import com.cslib.utils.L;
 
 /**
@@ -12,11 +14,16 @@ import com.cslib.utils.L;
  */
 public abstract class ETestCase {
 
-
-    protected String name;
+    public ETestCase() {
+        this("");
+    }
 
     public ETestCase(String name) {
-        this.name = name;
+        if (TextUtils.isEmpty(name)) {
+            this.mName = getClass().getName();
+        } else {
+            this.mName = name;
+        }
     }
 
     // 测试准备,可以设置响应环境.可不实现
@@ -36,14 +43,15 @@ public abstract class ETestCase {
 
         }
         if (!validate) {
-            L.e("[%s] 测试不通过. ", name);
+            L.e("[%s] 测试不通过. ", mName);
         }
         return validate;
     }
 
     //case 名称
     public String getName() {
-        return name;
+        return mName;
     }
 
+    protected String mName;
 }
