@@ -2,10 +2,13 @@ package com.android.cases;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.android.cases.case1.ETestCase1;
+import com.android.cases.case1.ETestCase2;
+import com.android.cases.case1.ETestCase3;
+import com.android.cases.case2.GoHomeCase;
 import com.cslib.CaseHelper;
 import com.cslib.cuscase.ECaseManager;
 import com.cslib.defcase.ETestCase;
@@ -24,10 +27,13 @@ import java.util.Set;
  */
 public class MainActivity extends Activity {
 
+    private Context mContext = null;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        mContext = this;
     }
 
     @Override
@@ -37,22 +43,28 @@ public class MainActivity extends Activity {
     }
 
     private void addCases() {
-        for (int i = 0; i < 3; i++) {
-            ETestSuite ts = new ETestSuite("测试分组1");
-            ts.addCase(new ETestCase1());
-            ts.addCase(new ETestCase2());
-            ts.addCase(new ETestCase3());
-            CaseHelper.addSuite(ts);
-            ETestSuite ts2 = new ETestSuite("测试分组2");
-            ts2.addCase(new ETestCase1());
-            ts2.addCase(new ETestCase2());
-            ts2.addCase(new ETestCase3());
-            CaseHelper.addSuite(ts2);
-            ETestSuite ts3 = new ETestSuite();
-            ts3.addCase(new ETestCase1());
-            ts3.addCase(new ETestCase2());
-            ts3.addCase(new ETestCase3());
-            CaseHelper.addSuite(ts3);
+        for (int i = 1; i < 10; i++) {
+//            ETestSuite ts = new ETestSuite("测试分组1");
+//            ts.addCase(new ETestCase1());
+//            ts.addCase(new ETestCase2());
+//            ts.addCase(new ETestCase3());
+//            CaseHelper.addSuite(ts);
+//            ETestSuite ts2 = new ETestSuite("测试分组2");
+//            ts2.addCase(new ETestCase1());
+//            ts2.addCase(new ETestCase2());
+//            ts2.addCase(new ETestCase3());
+//            CaseHelper.addSuite(ts2);
+//            ETestSuite ts3 = new ETestSuite();
+//            ts3.addCase(new ETestCase1());
+//            ts3.addCase(new ETestCase2());
+//            ts3.addCase(new ETestCase3());
+//            CaseHelper.addSuite(ts3);
+            if (i % 2 == 0) {
+                CaseHelper.addSuite(mContext, "测试分组" + i, "com.android.cases.case1");
+            } else {
+                CaseHelper.addSuite(mContext, "测试分组" + i, "com.android.cases.case3");
+            }
+
         }
 
 

@@ -1,11 +1,11 @@
-package com.android.cases;
+package com.android.cases.case3;
 
 
 import com.cslib.defcase.ETestCase;
 
-public class ETestCase3 extends ETestCase {
-    public ETestCase3() {
-        super("");
+public class TestCase2 extends ETestCase {
+    public TestCase2() {
+        super("TestCase2");
     }
 
     @Override

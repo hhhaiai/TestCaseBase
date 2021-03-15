@@ -1,4 +1,4 @@
-package com.android.cases;
+package com.android.cases.case2;
 
 import com.cslib.cuscase.ECase;
 

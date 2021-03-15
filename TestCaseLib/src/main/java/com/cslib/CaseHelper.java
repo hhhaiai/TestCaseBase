@@ -4,9 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 
+import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
 import com.cslib.page.ECaseHolder;
 import com.cslib.page.ListPage;
+import com.cslib.utils.ClazzList;
+import com.cslib.utils.ClazzUtils;
+
+import java.util.List;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -16,6 +21,11 @@ import com.cslib.page.ListPage;
  * @author: sanbo
  */
 public class CaseHelper {
+    /**
+     * 打开case页面
+     *
+     * @param context
+     */
     public static void openCasePage(Context context) {
         if (context != null) {
             Intent intent = new Intent();
@@ -25,6 +35,26 @@ public class CaseHelper {
         }
     }
 
+    /**
+     * 增加单组用例
+     *
+     * @param ctx
+     * @param suiteName 分组名称
+     * @param pkgPath   分组所在包路径
+     */
+    public static void addSuite(Context ctx, String suiteName, String pkgPath) {
+        ETestSuite testSuite = new ETestSuite(suiteName);
+        List<String> suiteClazz = ClazzList.getClasseNameByPkgPath(ctx, pkgPath);
+        for (String cls : suiteClazz) {
+            testSuite.addCase((ETestCase) ClazzUtils.newInstance(cls));
+        }
+//        CaseHelper.addSuite(devCases);
+        if (testSuite != null) {
+            ECaseHolder.getInstance().addSuite(testSuite);
+        }
+    }
+
+    @Deprecated
     public static void addSuite(ETestSuite suite) {
         if (suite != null) {
             ECaseHolder.getInstance().addSuite(suite);
