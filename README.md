@@ -3,6 +3,6 @@
 
 
 
-*  鸣谢
 
-感谢 [epic](https://github.com/tiann/epic) 的测试用例
+*  鸣谢: [weishu](https://github.com/tiann)
+
