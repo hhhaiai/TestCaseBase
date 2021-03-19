@@ -8,7 +8,6 @@ import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
 import com.cslib.page.ECaseHolder;
 import com.cslib.page.ListPage;
-import com.cslib.utils.ClazzList;
 import com.cslib.utils.ClazzUtils;
 
 import java.util.List;
@@ -44,7 +43,7 @@ public class CaseHelper {
      */
     public static void addSuite(Context ctx, String suiteName, String pkgPath) {
         ETestSuite testSuite = new ETestSuite(suiteName);
-        List<String> suiteClazz = ClazzList.getClasseNameByPkgPath(ctx, pkgPath);
+        List<String> suiteClazz = ClazzUtils.getClasseNameByPkgPath(ctx, pkgPath);
         for (String cls : suiteClazz) {
             testSuite.addCase((ETestCase) ClazzUtils.newInstance(cls));
         }

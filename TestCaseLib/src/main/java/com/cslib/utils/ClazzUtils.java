@@ -7,6 +7,11 @@ import android.text.TextUtils;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
+import dalvik.system.DexFile;
 
 public class ClazzUtils {
 
@@ -238,9 +243,16 @@ public class ClazzUtils {
         }
         return getFieldValueImpl(o.getClass(), fieldName, o);
     }
+    public static Object getStaticFieldValue(String className, String fieldName) {
+        return getStaticFieldValue(getClass(className), fieldName);
+    }
 
     public static Object getStaticFieldValue(Class clazz, String fieldName) {
         return getFieldValueImpl(clazz, fieldName, null);
+    }
+
+    public static void setStaticFieldValue(String className, String fieldName, Object value) {
+        setStaticFieldValue(getClass(className), fieldName, value);
     }
 
     public static void setStaticFieldValue(Class clazz, String fieldName, Object value) {
@@ -249,7 +261,6 @@ public class ClazzUtils {
         }
         setFieldValueImpl(null, clazz, fieldName, value);
     }
-
 
     public static void setFieldValue(Object o, String fieldName, Object value) {
         if (o == null) {
@@ -469,4 +480,27 @@ public class ClazzUtils {
         return invokeStaticMethod("android.os.SystemProperties", "get", new Class[]{String.class}, new Object[]{key});
     }
 
+    /**
+     * 获取指定包路径下的类名
+     *
+     * @param context
+     * @param pkgPath
+     * @return
+     */
+    public static List<String> getClasseNameByPkgPath(Context context, String pkgPath) {
+        ArrayList<String> classes = new ArrayList<String>();
+        try {
+            String packageCodePath = context.getPackageCodePath();
+            DexFile df = new DexFile(packageCodePath);
+            for (Enumeration<String> iter = df.entries(); iter.hasMoreElements(); ) {
+                String className = iter.nextElement();
+                if (className.startsWith(pkgPath)) {
+                    classes.add(className);
+                }
+            }
+        } catch (Throwable e) {
+            L.e(e);
+        }
+        return classes;
+    }
 }

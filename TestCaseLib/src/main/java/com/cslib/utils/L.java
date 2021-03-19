@@ -2,9 +2,11 @@ package com.cslib.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
 import android.os.BaseBundle;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Message;
 import android.text.TextUtils;
@@ -15,7 +17,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -30,7 +31,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -40,7 +40,6 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-
 
 /**
  * @Copyright © 2015 Sanbo Inc. All rights reserved.
@@ -55,32 +54,30 @@ import javax.xml.transform.stream.StreamSource;
  *          log等级：VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT
  * 6.格式化输出.
  * 7.支持XML/JSON/Map/Array等更多对象打印
- * 8.支持打印跳过堆栈
- *              </pre>
- * @Version: 7.0
- * @Create: 2019-04-30 11:28
+ * </pre>
+ * @Version: 6.1
+ * @Create: 2015年6月18日 下午4:14:01
  * @Author: sanbo
  */
-public final class L {
+public class L {
 
-    //是否使用
-    private static final boolean INTERNAL_CONTROL_ENABLE = true;
-    // 是否打印bug.建议在application中调用init接口初始化
-    public static boolean USER_DEBUG;
+    private static Context mContext;
+
     // 解析属性最大层级
-    private static int MAX_CHILD_LEVEL;
+    public static int MAX_CHILD_LEVEL;
     // 换行符
-    private static String BR;
+    public static String BR;
     private static int JSON_INDENT;
+    // 是否打印bug.用于开发者自己排查问题打印
+    public static boolean DEV_DEBUG = true;
     // 是否接受shell控制打印
     private static boolean isShellControl;
     // 是否打印详细log,详细打印调用的堆栈
     private static boolean isNeedCallstackInfo;
     // 是否按照条形框输出,有包裹域的输出
     private static boolean isNeedWrapper;
-    // 是否格式化展示,主要针对JSON
+    // 是否格式化展示,主要针对JSON+简易调用堆栈的控制
     private static boolean isFormat;
-    private static Pattern mPattern;
     // 默认tag
     private static String DEFAULT_TAG;
     // 临时tag.用法：调用log中大于1个参数,且第一个参数为字符串,且不是format用法,字符串长度没超过协议值,此时启用临时tag
@@ -89,6 +86,8 @@ public final class L {
     private static int LOG_MAXLENGTH;
     // 类名(getClassName).方法名(getMethodName)[行号(getLineNumber)]
     private static String content_simple_callstack;
+    // 查找%个数
+    private static Pattern mPattern;
     // 格式化时，行首封闭符
     private static String CONTENT_LINE;
     // 空格
@@ -109,92 +108,73 @@ public final class L {
     private static String CONTENT_C;
     private static String CONTENT_D;
     private static String CONTENT_E;
-    private static String CONTENT_WARNNING_SHELL;
     private static Character FORMATER;
+    private static String CONTENT_WARNNING_SHELL;
 
+    private L() {
+        mContext = getContext();
+    }
 
+    // 防止混淆编译还能看到所有字符串的情况
     static {
-        if (INTERNAL_CONTROL_ENABLE) {
-            // 解析属性最大层级
-            MAX_CHILD_LEVEL = 3;
-            // 换行符
-            BR = System.getProperty("line.separator");
-            JSON_INDENT = 2;
-            // 是否打印bug.建议在application中调用init接口初始化
-            USER_DEBUG = true;
-            // 是否接受shell控制打印
-            isShellControl = true;
-            // 是否打印详细log,详细打印调用的堆栈
-            isNeedCallstackInfo = false;
-            // 是否按照条形框输出,有包裹域的输出
-            isNeedWrapper = false;
-            // 是否格式化展示,主要针对JSON+简化堆栈
-            isFormat = true;
-            mPattern = Pattern.compile("%", Pattern.CASE_INSENSITIVE);
-            // 默认tag
-            DEFAULT_TAG = "sanbo";
-            // 临时tag.用法：调用log中大于1个参数,且第一个参数为字符串,且不是format用法,字符串长度没超过协议值,此时启用临时tag
-            TEMP_TAG = "";
-            // 规定每段显示的长度.每行最大日志长度 (Android Studio3.1最多2902字符)
-            LOG_MAXLENGTH = 2900;
-            // 类名(getClassName).方法名(getMethodName)[行号(getLineNumber)]
-            content_simple_callstack = "简易调用堆栈: %s.%s[%d]";
-            // 格式化时，行首封闭符
-            CONTENT_LINE = "║ ";
-            // 空格
-            CONTENT_SPACE = "  ";
-            CONTENT_LOG_INFO = "log info:";
-            CONTENT_LOG_EMPTY = "打印的日志信息为空!";
-            content_title_begin =
-                    "╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════";
-            content_title_info_callstack =
-                    "╔══════════════════════════════════════════════════════════════调用详情══════════════════════════════════════════════════════════════";
-            content_title_info_log =
-                    "╔══════════════════════════════════════════════════════════════日志详情══════════════════════════════════════════════════════════════";
-            content_title_info_error =
-                    "╔══════════════════════════════════════════════════════════════异常详情══════════════════════════════════════════════════════════════";
-            content_title_info_type =
-                    "╔════════════════════════════════════════════════════「%s」════════════════════════════════════════════════════";
-            content_title_end =
-                    "╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════";
-            /**
-             * 行首为该符号时，不增加行首封闭符
-             */
-            CONTENT_A = CONTENT_LINE;
-            CONTENT_B = "╔";
-            CONTENT_C = "╚";
-            CONTENT_D = " ╔";
-            CONTENT_E = " ╚";
-            CONTENT_WARNNING_SHELL =
-                    "Wranning....不够打印级别,请在命令行设置指令后重新尝试打印,命令行指令: adb shell setprop log.tag." + DEFAULT_TAG + " ";
-            Character FORMATER = '%';
-        }
+        mContext = null;
+
+        // 解析属性最大层级
+        MAX_CHILD_LEVEL = 3;
+        // 换行符
+        BR = System.getProperty("line.separator");
+        JSON_INDENT = 2;
+        // 是否打印bug.用于开发者自己排查问题打印
+        // 是否接受shell控制打印
+        isShellControl = true;
+        // 是否打印详细log,详细打印调用的堆栈
+        isNeedCallstackInfo = false;
+        // 是否按照条形框输出,有包裹域的输出
+        isNeedWrapper = false;
+        // 是否格式化展示,主要针对JSON+简易调用堆栈的控制
+        isFormat = false;
+        // 默认tag
+        DEFAULT_TAG = "sanbo";
+        // 临时tag.用法：调用log中大于1个参数,且第一个参数为字符串,且不是format用法,字符串长度没超过协议值,此时启用临时tag
+        TEMP_TAG = "";
+        // 规定每段显示的长度.每行最大日志长度 (Android Studio3.1最多2902字符)
+        LOG_MAXLENGTH = 2900;
+        // 类名(getClassName).方法名(getMethodName)[行号(getLineNumber)]
+        content_simple_callstack = "[%s]  堆栈: %s.%s[%d]  ";
+        // 查找%个数
+        mPattern = Pattern.compile("%", Pattern.CASE_INSENSITIVE);
+        // 格式化时，行首封闭符
+        CONTENT_LINE = "║ ";
+        // 空格
+        CONTENT_SPACE = "  ";
+        CONTENT_LOG_INFO = "log info:";
+        CONTENT_LOG_EMPTY = "打印的日志信息为空!";
+        content_title_begin = "╔═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════";
+        content_title_info_callstack = "╔══════════════════════════════════════════════════════════════调用详情══════════════════════════════════════════════════════════════";
+        content_title_info_log = "╔══════════════════════════════════════════════════════════════日志详情══════════════════════════════════════════════════════════════";
+        content_title_info_error = "╔══════════════════════════════════════════════════════════════异常详情══════════════════════════════════════════════════════════════";
+        content_title_info_type = "╔════════════════════════════════════════════════════「%s"
+                + "」════════════════════════════════════════════════════";
+        content_title_end = "╚═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════";
+        /**
+         * 行首为该符号时，不增加行首封闭符
+         */
+        CONTENT_A = CONTENT_LINE;
+        CONTENT_B = "╔";
+        CONTENT_C = "╚";
+        CONTENT_D = " ╔";
+        CONTENT_E = " ╚";
+        FORMATER = '%';
+        CONTENT_WARNNING_SHELL =
+                "Wranning....不够打印级别,请在命令行设置指令后重新尝试打印,命令行指令: adb shell setprop log.tag." + DEFAULT_TAG + " ";
+
     }
 
 
+    /*********************************************************************************************************/
     /**
-     * 初始化接口
-     *
-     * @param showLog           是否展示log，默认展示
-     * @param shellControl      是否使用shell控制log动态打印.默认不使用. shell设置方式：setprop log.tag.sanbo INFO
-     *                          最后一个参数为log等级,可选项目：VERBOSE/DEBUG/INFO/WARN/ERROR/ASSERT
-     * @param needWarpper       是否需要格式化输出
-     * @param needCallStackInfo 是否需要打印详细的堆栈调用信息.
-     * @param format            是否需要格式化.
-     * @param defaultTag        android logcat的tag一个意义,不设置默认的tag为"sanbo"
+     * 支持可变参数打印,根据不同的结构支持. 可以统一成一个接口
      */
-    public static void init(boolean showLog, boolean shellControl, boolean needWarpper, boolean needCallStackInfo,
-                            boolean format, String defaultTag) {
-        USER_DEBUG = showLog;
-        isShellControl = shellControl;
-        isNeedWrapper = needWarpper;
-        isNeedCallstackInfo = needCallStackInfo;
-        isFormat = format;
-        if (!TextUtils.isEmpty(defaultTag)) {
-            DEFAULT_TAG = defaultTag;
-        }
-    }
-
     /*********************************************************************************************************/
     public static void v(Object... args) {
         if (isShellControl) {
@@ -203,7 +183,9 @@ public final class L {
                 return;
             }
         }
+
         parserArgsMain(MLEVEL.VERBOSE, args);
+
     }
 
     public static void d(Object... args) {
@@ -217,6 +199,7 @@ public final class L {
     }
 
     public static void i(Object... args) {
+
         if (isShellControl) {
             if (!Log.isLoggable(DEFAULT_TAG, Log.INFO)) {
                 Log.i(DEFAULT_TAG, CONTENT_WARNNING_SHELL + "INFO");
@@ -224,24 +207,25 @@ public final class L {
             }
         }
         parserArgsMain(MLEVEL.INFO, args);
+
     }
 
-    /*********************************************************************************************************/
-    /**
-     * 支持可变参数打印,根据不同的结构支持. 可以统一成一个接口
-     */
 
     public static void w(Object... args) {
+
         if (isShellControl) {
             if (!Log.isLoggable(DEFAULT_TAG, Log.WARN)) {
                 Log.w(DEFAULT_TAG, CONTENT_WARNNING_SHELL + "WARN");
                 return;
             }
         }
+
         parserArgsMain(MLEVEL.WARN, args);
+
     }
 
     public static void e(Object... args) {
+
         if (isShellControl) {
             if (!Log.isLoggable(DEFAULT_TAG, Log.ERROR)) {
                 Log.e(DEFAULT_TAG, CONTENT_WARNNING_SHELL + "ERROR");
@@ -249,9 +233,11 @@ public final class L {
             }
         }
         parserArgsMain(MLEVEL.ERROR, args);
+
     }
 
     public static void wtf(Object... args) {
+
         if (isShellControl) {
             if (!Log.isLoggable(DEFAULT_TAG, Log.ASSERT)) {
                 Log.wtf(DEFAULT_TAG, CONTENT_WARNNING_SHELL + "ASSERT");
@@ -259,10 +245,13 @@ public final class L {
             }
         }
         parserArgsMain(MLEVEL.WTF, args);
+
     }
 
+
     /**
-     * 解析参数入口.这步骤开始忽略类型.解析所有参数,参数检查逻辑： 1.是否为String,若为String,则先判断是否格式化输出,不是再进行字符串转换格式尝试 2.对象其他类型判断:
+     * 解析参数入口.这步骤开始忽略类型.解析所有参数,参数检查逻辑：
+     * 1.是否为String,若为String,则先判断是否格式化输出,不是再进行字符串转换格式尝试 2.对象其他类型判断:
      * StringBuffer>StringBuild>Throwable>Intent>List>Map
      *
      * @param level
@@ -270,108 +259,115 @@ public final class L {
      */
     private static void parserArgsMain(int level, Object[] args) {
 
-        /*
-         * 确认打印
-         */
-        if (!USER_DEBUG || !INTERNAL_CONTROL_ENABLE) {
-            return;
-        }
+        try {
+            String tag = DEFAULT_TAG;
+            if (!DEV_DEBUG) {
+                Log.e(DEFAULT_TAG, "请确认Log工具类已经设置打印!");
+                return;
+            }
+            StringBuilder sb = new StringBuilder();
 
-        StringBuilder sb = new StringBuilder();
-        // 开始
-//        if (isFormat) {
-//            sb.append(CONTENT_LOG_INFO).append("\n");
-//        }
-        String stackinfo = getCallStaceInfo();
-        if (!TextUtils.isEmpty(stackinfo)) {
-            sb.append(stackinfo).append("\n");
-        }
 
-        if (args[0] instanceof String) {
-            // if (isNeedWrapper) {
-            // sb.append(content_title_info_log).append("\n");
-            // }
-            String one = (String) args[0];
-            // 解析fromat
-            if (one.contains(String.valueOf(FORMATER)) && args.length > 1) {
-
-                /*
-                 * 参数解析
-                 */
-                Object[] temp = new Object[args.length - 1];
-                for (int i = 1; i < args.length; i++) {
-                    temp[i - 1] = args[i];
-                }
-
-                // 查找%个数
-                Matcher m = mPattern.matcher(one);
-                int count = 0;
-                while (m.find()) {
-                    count++;
-                }
-
-                /**
-                 * %和后面参数一样，则格式化，否则不进行格式化
-                 */
-                if (count == temp.length) {
-                    // 格式化操作
-                    String log = String.format(Locale.getDefault(), one, temp);
-                    if (isNeedWrapper) {
-                        sb.append(content_title_info_log).append("\n");
-                    }
-                    sb.append(wrapperString(log)).append("\n");
+            // 开始
+            if (isFormat) {
+                sb.append("\n");
+            }
+            String stackinfo = getCallStaceInfo();
+            if (!TextUtils.isEmpty(stackinfo)) {
+                if (isNeedCallstackInfo) {
+                    sb.append(stackinfo).append("\n");
                 } else {
-                    if (isNeedWrapper) {
-                        sb.append(content_title_info_log).append("\n");
-                    }
-                    StringBuilder tempSB = new StringBuilder();
-                    for (Object obj : args) {
-                        // 解析成字符串,添加
-                        String tempStr = objectToString(obj);
-                        // Log.i(DEFAULT_TAG, "tempStr:" + tempStr);
-                        if (!TextUtils.isEmpty(tempStr)) {
-                            // sb.append(nativeWrapperString(temp)).append("\n");
-                            tempSB.append(tempStr).append("\t");
-                        }
-                    }
-                    sb.append(wrapperString(tempSB.toString())).append("\n");
+                    sb.append(stackinfo);
                 }
-            } else {
-                // 不符合format规则数据
-                if (args.length > 1) {
-                    // 大于一次参数，第一个参数是字符串，默认是tag
-                    String log = processTagCase(args);
-                    if (!TextUtils.isEmpty(log)) {
+            }
+            sb.append("\n");
+
+            if (args[0] instanceof String) {
+                // if (isNeedWrapper) {
+                // sb.append(content_title_info_log).append("\n");
+                // }
+                String one = (String) args[0];
+                // 解析fromat
+                if (one.contains(String.valueOf(FORMATER)) && args.length > 1) {
+
+                    /*
+                     * 参数解析
+                     */
+                    Object[] temp = new Object[args.length - 1];
+                    for (int i = 1; i < args.length; i++) {
+                        temp[i - 1] = args[i];
+                    }
+
+                    Matcher m = mPattern.matcher(one);
+                    int count = 0;
+                    while (m.find()) {
+                        count++;
+                    }
+
+                    /**
+                     * %和后面参数一样，则格式化，否则不进行格式化
+                     */
+                    if (count == temp.length) {
+                        // 格式化操作
+                        String log = String.format(Locale.getDefault(), one, temp);
+                        if (isNeedWrapper) {
+                            sb.append(content_title_info_log).append("\n");
+                        }
                         sb.append(wrapperString(log)).append("\n");
                     } else {
-                        // 需要支持打印""或者null
-                        sb.append(wrapperString("")).append("\n");
+                        if (isNeedWrapper) {
+                            sb.append(content_title_info_log).append("\n");
+                        }
+                        StringBuilder tempSB = new StringBuilder();
+                        for (Object obj : args) {
+                            // 解析成字符串,添加
+                            String tempStr = objectToString(obj);
+                            // Log.i(DEFAULT_TAG, "tempStr:" + tempStr);
+                            if (!TextUtils.isEmpty(tempStr)) {
+                                // sb.append(nativeWrapperString(temp)).append("\n");
+                                tempSB.append(tempStr).append("\t");
+                            }
+                        }
+                        sb.append(wrapperString(tempSB.toString())).append("\n");
                     }
                 } else {
-                    if (isNeedWrapper) {
-                        sb.append(content_title_info_log).append("\n");
+                    // 不符合format规则数据
+                    if (args.length > 1) {
+                        // 大于一次参数，第一个参数是字符串，默认是tag
+                        String log = processTagCase(args);
+                        if (!TextUtils.isEmpty(log)) {
+                            sb.append(wrapperString(log)).append("\n");
+                        } else {
+                            // 需要支持打印""或者null
+                            sb.append(wrapperString("")).append("\n");
+                        }
+                    } else {
+                        if (isNeedWrapper) {
+                            sb.append(content_title_info_log).append("\n");
+                        }
+                        sb.append(wrapperString(one)).append("\n");
                     }
-                    sb.append(wrapperString(one)).append("\n");
                 }
-            }
-        } else {
+            } else {
 
-            for (Object obj : args) {
-                // 解析成字符串,添加
-                String temp = processObjectCase(obj);
-                // Log.i(DEFAULT_TAG, "temp:" + temp);
-                if (!TextUtils.isEmpty(temp)) {
-                    // sb.append(nativeWrapperString(temp)).append("\n");
-                    sb.append(temp).append("\n");
+                for (Object obj : args) {
+                    // 解析成字符串,添加
+                    String temp = processObjectCase(obj);
+                    // Log.i(DEFAULT_TAG, "temp:" + temp);
+                    if (!TextUtils.isEmpty(temp)) {
+                        // sb.append(nativeWrapperString(temp)).append("\n");
+                        sb.append(temp).append("\n");
+                    }
                 }
             }
+            // 结束,标记结束符
+            if (isNeedWrapper) {
+                sb.append(content_title_end);
+            }
+            // 打印字符
+            preparePrint(tag, level, sb.toString());
+        } catch (Throwable e) {
         }
-        // 结束,标记结束符
-        if (isNeedWrapper) {
-            sb.append(content_title_end);
-        }
-        // 打印字符
-        preparePrint(level, sb.toString());
 
     }
 
@@ -403,6 +399,12 @@ public final class L {
         }
         return sb.toString();
     }
+
+    /*********************************************************************************************************/
+    /**
+     * 基础工具方法
+     */
+    /*********************************************************************************************************/
 
     /**
      * <pre>
@@ -452,7 +454,7 @@ public final class L {
     private static String getCallStaceInfo() {
         Exception callStack = new Exception("debug_info call stack.");
         StringBuilder sb = new StringBuilder();
-        StackTraceElement stackElement[] = Thread.currentThread().getStackTrace();
+        StackTraceElement[] stackElement = Thread.currentThread().getStackTrace();
         // 现在文件
         boolean currentFile = false;
         // 现在文件多重调用
@@ -461,8 +463,7 @@ public final class L {
             if (currentFile && !isKeeping) {
                 break;
             }
-            // 跳过忽略的类
-            if (mIgnoreClasses.contains(ste.getClassName())) {
+            if (ste.getClassName().equals(L.class.getName())) {
                 if (!currentFile) {
                     currentFile = true;
                 }
@@ -501,9 +502,20 @@ public final class L {
                                     .append(CONTENT_LINE).append(CONTENT_SPACE).append("调用堆栈详情:").append("\n")
                                     .append(wrapperString(cc));
                         } else {
-                            sb.append("\n").append(content_title_begin).append("\n").append(CONTENT_LINE)
-                                    .append(String.format(content_simple_callstack, ste.getClassName(), ste.getMethodName(),
-                                            ste.getLineNumber()));
+                            try {
+                                mContext = getContext();
+                            } catch (Throwable e) {
+                            }
+                            if (mContext != null) {
+                                sb.append("\n").append(content_title_begin).append("\n").append(CONTENT_LINE)
+                                        .append(String.format(content_simple_callstack, getCurrentProcessName(mContext), ste.getClassName(),
+                                                ste.getMethodName(), ste.getLineNumber()));
+                            } else {
+                                sb.append("\n").append(content_title_begin).append("\n").append(CONTENT_LINE)
+                                        .append(String.format(content_simple_callstack, "", ste.getClassName(),
+                                                ste.getMethodName(), ste.getLineNumber()));
+                            }
+
                             // 上一层会处理
                             // .append("\n");
                         }
@@ -516,10 +528,18 @@ public final class L {
                                     .append("Native方法:" + (!ste.isNativeMethod() ? "不是" : "是")).append("\n")
                                     .append("调用堆栈详情:").append("\n").append(wrapperString(cc));
                         } else {
-                            if (isFormat) {
-                                sb.append(String.format(content_simple_callstack, ste.getClassName(),
+                            try {
+                                mContext = getContext();
+                            } catch (Throwable e) {
+                            }
+                            if (mContext != null) {
+                                sb.append(String.format(content_simple_callstack, getCurrentProcessName(mContext), ste.getClassName(),
+                                        ste.getMethodName(), ste.getLineNumber()));
+                            } else {
+                                sb.append(String.format(content_simple_callstack, "", ste.getClassName(),
                                         ste.getMethodName(), ste.getLineNumber()));
                             }
+
                         }
                     }
 
@@ -536,15 +556,14 @@ public final class L {
     }
 
     /*********************************************************************************************************/
-    /**
-     * 基础工具方法
-     */
-    /*********************************************************************************************************/
-
-    /*********************************************************************************************************/
     private static String objectToString(Object object) {
         return objectToString(object, 0);
     }
+
+    /*********************************************************************************************************/
+    /**
+     * 解析对象成字符串
+     */
 
     /**
      * 是否为静态内部类
@@ -576,19 +595,10 @@ public final class L {
         }
         // 支持的类型.单独处理
         Class<?> czz = object.getClass();
-
-        if (Build.VERSION.SDK_INT > 20) {
-            if (BaseBundle.class.isAssignableFrom(czz)) {
-                BaseBundle bundle = (BaseBundle) object;
-                return parseString(bundle);
-            }
-        } else {
-            if (Bundle.class.isAssignableFrom(czz)) {
-                Bundle bundle = (Bundle) object;
-                return parseString(bundle);
-            }
-        }
-        if (String.class.isAssignableFrom(czz)) {
+        if (Bundle.class.isAssignableFrom(czz)) {
+            Bundle bundle = (Bundle) object;
+            return parseString(bundle);
+        } else if (String.class.isAssignableFrom(czz)) {
             String obj = (String) object;
             return parseString(obj);
         } else if (Number.class.isAssignableFrom(czz)) {
@@ -639,7 +649,7 @@ public final class L {
                 return parseStringByObject(object, childLevel);
             } else {
                 // 若对象重写toString()方法默认走toString()
-                return object.toString();
+                return String.valueOf(object);
             }
         }
     }
@@ -668,14 +678,8 @@ public final class L {
                     continue;
                 }
 
-                if (field.getName().equals("$change")) {
-                    continue;
-                }
-                // 解决Instant Run情况下内部类死循环的问题
-                // System.out.println(field.getName()+ "***" +subObject.getClass() + "啊啊啊啊啊啊" +
-                // cla);
-                if (!isStaticInnerClass(cla)
-                        && (field.getName().equals("$change") || field.getName().equalsIgnoreCase("this$0"))) {
+                String fieldName = field.getName();
+                if (isInstantRun(cla, fieldName)) {
                     continue;
                 }
                 Object subObject = null;
@@ -693,23 +697,23 @@ public final class L {
                                 s = s.replaceAll("\n", "").replaceAll("\r", "").replaceAll("\r\n", "");
                                 try {
                                     JSONObject temp = new JSONObject(s);
-                                    obj.put(field.getName(), temp);
+                                    obj.put(fieldName, temp);
                                 } catch (Throwable e) {
                                     try {
                                         JSONArray arr = new JSONArray(s);
-                                        obj.put(field.getName(), arr);
+                                        obj.put(fieldName, arr);
                                     } catch (Throwable e2) {
-                                        obj.put(field.getName(), s);
+                                        obj.put(fieldName, s);
                                     }
                                 }
                             } else {
-                                obj.put(field.getName(), subObject);
+                                obj.put(fieldName, subObject);
                             }
                         } else {
-                            obj.put(field.getName(), subObject.toString());
+                            obj.put(fieldName, subObject.toString());
                         }
                     } else {
-                        obj.put(field.getName(), "null");
+                        obj.put(fieldName, "null");
                     }
                 }
             }
@@ -717,10 +721,19 @@ public final class L {
         }
     }
 
-    /*********************************************************************************************************/
-    /**
-     * 解析对象成字符串
-     */
+    private static boolean isInstantRun(Class<?> cla, String fieldName) {
+        if ("$change".equalsIgnoreCase(fieldName)) {
+            return true;
+        }
+        // 解决Instant Run情况下内部类死循环的问题
+        // System.out.println(field.getName()+ "***" +subObject.getClass() + "啊啊啊啊啊啊" +
+        // cla);
+        if (!isStaticInnerClass(cla)
+                && ("$change".equalsIgnoreCase(fieldName) || "this$0".equalsIgnoreCase(fieldName))) {
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 获取数组的纬度
@@ -853,15 +866,16 @@ public final class L {
         Field[] fields = activity.getClass().getFields();
         for (Field f : fields) {
             f.setAccessible(true);
-            if ("org.aspectj.lang.JoinPoint$StaticPart".equals(f.getType().getName())) {
+            if ("org.aspectj.lang.JoinPoint$StaticPart".equalsIgnoreCase(f.getType().getName())) {
                 continue;
             }
-            if (f.getName().equals("$change") || f.getName().equalsIgnoreCase("this$0")) {
+            String fieldName = f.getName();
+            if ("$change".equalsIgnoreCase(fieldName) || "this$0".equalsIgnoreCase(fieldName)) {
                 continue;
             }
             try {
                 Object fieldValue = f.get(activity);
-                obj.put(f.getName(), objectToString(fieldValue));
+                obj.put(fieldName, objectToString(fieldValue));
             } catch (Throwable e) {
             }
         }
@@ -871,10 +885,11 @@ public final class L {
         builder.append(BR);
         for (Field field : fields) {
             field.setAccessible(true);
-            if ("org.aspectj.lang.JoinPoint$StaticPart".equals(field.getType().getName())) {
+            if ("org.aspectj.lang.JoinPoint$StaticPart".equalsIgnoreCase(field.getType().getName())) {
                 continue;
             }
-            if (field.getName().equals("$change") || field.getName().equalsIgnoreCase("this$0")) {
+            String fieldName = field.getName();
+            if ("$change".equalsIgnoreCase(fieldName) || "this$0".equalsIgnoreCase(fieldName)) {
                 continue;
             }
             try {
@@ -884,7 +899,6 @@ public final class L {
             }
         }
         builder.append("}");
-        Log.d("www", builder.toString());
         return format(obj);
     }
 
@@ -1002,16 +1016,13 @@ public final class L {
                     return xml;
                 } catch (Throwable e3) {
                     // 不是XML
-                    return src;
                 } finally {
-                    if (reader != null) {
-                        reader.close();
-                    }
+                    safeClose(reader);
                 }
             }
         } catch (Throwable e) {
-            return src;
         }
+        return src;
     }
 
     /**
@@ -1039,7 +1050,7 @@ public final class L {
             for (int i = 0; i < ss.length; i++) {
                 s = ss[i];
                 // 一般首第一个字符不知道是什么东西
-                if (s.substring(1, 3).equalsIgnoreCase("at")) {
+                if ("at".equalsIgnoreCase(s.substring(1, 3))) {
                     // 部分堆栈怕其他行缩进失误
                     // if (i > 0) {
                     sb.append(CONTENT_SPACE).append(s);
@@ -1052,18 +1063,10 @@ public final class L {
             }
         } catch (Throwable error) {
         } finally {
-            if (sw != null) {
-                try {
-                    sw.close();
-                } catch (IOException igone1) {
-                    igone1.printStackTrace();
-                }
-            }
-            if (pw != null) {
-                pw.close();
-            }
+            safeClose(sw);
+            safeClose(pw);
         }
-        return sb.toString();
+        return String.valueOf(sb);
     }
 
     private static String parseString(Intent intent) {
@@ -1084,11 +1087,11 @@ public final class L {
             if (!TextUtils.isEmpty(intent.getPackage())) {
                 obj.put("Package", intent.getPackage());
             }
-            if (!TextUtils.isEmpty(intent.getComponent().toString())) {
-                obj.put("ComponentInfo", intent.getComponent().toString());
+            if (!TextUtils.isEmpty(String.valueOf(intent.getComponent()))) {
+                obj.put("ComponentInfo", String.valueOf(intent.getComponent()));
             }
-            if (!TextUtils.isEmpty(intent.getCategories().toString())) {
-                obj.put("Categories", intent.getCategories().toString());
+            if (!TextUtils.isEmpty(String.valueOf(intent.getCategories()))) {
+                obj.put("Categories", String.valueOf(intent.getCategories()));
             }
             String extras = parseString(intent.getExtras());
             if (!TextUtils.isEmpty(extras)) {
@@ -1098,7 +1101,7 @@ public final class L {
             if (!TextUtils.isEmpty(flags)) {
                 obj.put("Flags", intent.getType());
             }
-        } catch (JSONException e) {
+        } catch (Throwable e) {
         }
 
         return format(obj);
@@ -1115,7 +1118,7 @@ public final class L {
                 if (field.getName().startsWith("FLAG_")) {
                     int value = 0;
                     Object object = field.get(cla);
-                    if (object instanceof Integer || object.getClass().getSimpleName().equals("int")) {
+                    if (object instanceof Integer || "int".equals(object.getClass().getSimpleName())) {
                         value = (Integer) object;
                     }
 
@@ -1135,12 +1138,12 @@ public final class L {
                 builder.append(" | ");
             }
         }
-        if (TextUtils.isEmpty(builder.toString())) {
+        if (TextUtils.isEmpty(String.valueOf(builder))) {
             builder.append(flags);
         } else if (builder.indexOf("|") != -1) {
             builder.delete(builder.length() - 2, builder.length());
         }
-        return builder.toString();
+        return String.valueOf(builder);
     }
 
     /**
@@ -1152,12 +1155,19 @@ public final class L {
     private static String format(JSONArray arr) {
         if (arr != null) {
             try {
-                return isFormat ? (arr.toString(JSON_INDENT)) : arr.toString();
+                return isFormat ? (arr.toString(JSON_INDENT)) : String.valueOf(arr);
             } catch (Exception e) {
+
             }
         }
         return "";
     }
+
+    /*********************************************************************************************************/
+    /**
+     * 格式化字符串、异常、JSONArray、JSONObject
+     */
+    /*********************************************************************************************************/
 
     /**
      * 格式化输出JSONObject
@@ -1169,8 +1179,9 @@ public final class L {
 
         if (obj != null) {
             try {
-                return isFormat ? obj.toString(JSON_INDENT) : obj.toString();
+                return isFormat ? obj.toString(JSON_INDENT) : String.valueOf(obj);
             } catch (Exception e) {
+
             }
         }
         return "";
@@ -1190,9 +1201,9 @@ public final class L {
                 sb.append(CONTENT_LINE);
             }
             sb.append(CONTENT_LOG_EMPTY);
-            return sb.toString();
+            return String.valueOf(sb);
         }
-        String ss[] = new String[]{};
+        String[] ss = new String[]{};
         String temp = null;
         if (log.contains("\n")) {
             ss = log.split("\n");
@@ -1279,8 +1290,14 @@ public final class L {
             }
             sb.append(log);
         }
-        return sb.toString();
+        return String.valueOf(sb);
     }
+
+    /*********************************************************************************************************/
+    /**
+     * 字符串包裹处理
+     */
+    /*********************************************************************************************************/
 
     /**
      * 动态检查临时.切割大文件
@@ -1288,41 +1305,51 @@ public final class L {
      * @param level
      * @param msg
      */
-    private static void preparePrint(int level, String msg) {
-        String tag = DEFAULT_TAG;
+    private static void preparePrint(String tag, int level, String msg) {
+        String TAG = tag;
         if (!TextUtils.isEmpty(TEMP_TAG)) {
-            tag = TEMP_TAG;
+            TAG = TEMP_TAG;
         }
 
         if (msg.length() > LOG_MAXLENGTH) {
             List<String> splitStr = getStringBysplitLine(msg, LOG_MAXLENGTH);
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = null;
             for (int i = 0; i < splitStr.size(); i++) {
-                /**
-                 * 防止每行过短测试原始压缩
-                 */
                 String line = splitStr.get(i);
-                if (sb.toString().getBytes().length + line.getBytes().length >= LOG_MAXLENGTH) {
-                    realPrint(level, tag, wrapperString(sb.toString()));
-                    sb = new StringBuffer().append(line);
+                if (sb == null) {
+                    sb = new StringBuilder();
+                }
+                if (sb.length() + line.length() >= LOG_MAXLENGTH) {
+                    realPrint(level, TAG, wrapperString(String.valueOf(sb)));
+                    sb = new StringBuilder();
+                    if (line.length() >= LOG_MAXLENGTH) {
+                        realPrint(level, TAG, wrapperString(line));
+                    } else {
+                        sb.append(line);
+                    }
+                    if (i != splitStr.size() - 1) {
+                        sb.append("\n");
+                    }
                 } else {
                     sb.append(line);
+                    if (i != splitStr.size() - 1) {
+                        sb.append("\n");
+                    }
                 }
-
             }
-            if (sb.toString().length() > 0) {
-                realPrint(level, tag, wrapperString(sb.toString()));
+            if (sb != null) {
+                realPrint(level, TAG, wrapperString(String.valueOf(sb)));
                 sb = null;
             }
         } else {
-            realPrint(level, tag, wrapperString(msg));
+            realPrint(level, TAG, wrapperString(msg));
         }
         TEMP_TAG = "";
     }
 
     /*********************************************************************************************************/
     /**
-     * 格式化字符串、异常、JSONArray、JSONObject
+     * 打印方法
      */
     /*********************************************************************************************************/
 
@@ -1377,9 +1404,8 @@ public final class L {
                 }
             }
         }
-//        Log.e("sanbo", msg.length() + "-----" + maxLen);
-//        Log.e("sanbo", "分割成多行:" + lines.length);
         if (lines.length > 1) {
+
             for (int i = 0; i < lines.length; i++) {
                 String line = lines[i];
                 // 单行都超过最大长度，直接按照字符串分别来做
@@ -1391,12 +1417,6 @@ public final class L {
 
         return result;
     }
-
-    /*********************************************************************************************************/
-    /**
-     * 字符串包裹处理
-     */
-    /*********************************************************************************************************/
 
     /**
      * 处理单行超长处理
@@ -1425,73 +1445,64 @@ public final class L {
         }
     }
 
-    /*********************************************************************************************************/
-    /**
-     * 打印方法
-     */
-    /*********************************************************************************************************/
-
-    /**
-     * 设置调试状态
-     *
-     * @param isShowLog
-     * @return
-     */
-    public L setDebug(boolean isShowLog) {
-        USER_DEBUG = isShowLog;
-        return HLODER.INSTANCE;
+    private static Context getContext() {
+        return getContextImpl();
     }
 
-    /**
-     * 设置tag
-     *
-     * @param defaultTag
-     * @return
-     */
-    public L setTag(String defaultTag) {
-        if (!TextUtils.isEmpty(defaultTag)) {
-            DEFAULT_TAG = defaultTag;
-        }
-        return HLODER.INSTANCE;
-    }
-
-
-    private static CopyOnWriteArrayList<String> mIgnoreClasses = new CopyOnWriteArrayList<String>();
-
-    /**
-     * 设置堆栈的类名字
-     *
-     * @param clazzes
-     * @return
-     */
-    public L setIgnoreClass(Class<?>... clazzes) {
+    private static Context getContextImpl() {
         try {
-            for (int i = 0; i < clazzes.length; i++) {
-                String name = clazzes[i].getName();
-                if (!mIgnoreClasses.contains(name)) {
-                    mIgnoreClasses.add(name);
+            if (mContext == null) {
+                Object at = ClazzUtils.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
+                Application app = (Application) ClazzUtils.invokeObjectMethod(at, "getApplication");
+                if (app != null) {
+                    mContext = app.getApplicationContext();
+                }
+                if (mContext == null) {
+                    app = (Application) ClazzUtils.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
+                    if (app != null) {
+                        mContext = app.getApplicationContext();
+                    }
+                }
+            }
+        } catch (Throwable igone) {
+        }
+
+        return mContext;
+    }
+
+    private static void safeClose(Object closeable) {
+        if (closeable != null) {
+            try {
+//                closeable.close();
+                ClazzUtils.invokeObjectMethod(closeable, "close");
+            } catch (Throwable e) {
+            }
+        }
+    }
+
+    /**
+     * 获取当前进程的名称
+     *
+     * @param context
+     * @return
+     */
+    private static String getCurrentProcessName(Context context) {
+        try {
+            int pid = android.os.Process.myPid();
+            ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+            if (am != null) {
+                for (ActivityManager.RunningAppProcessInfo info : am.getRunningAppProcesses()) {
+                    if (info.pid == pid) {
+                        return info.processName;
+                    }
                 }
             }
         } catch (Throwable e) {
-            Log.e(DEFAULT_TAG, Log.getStackTraceString(e));
         }
-        return HLODER.INSTANCE;
+        return "";
     }
 
-
-    private L() {
-        setIgnoreClass(this.getClass());
-    }
-
-    public static L getInstance() {
-        return HLODER.INSTANCE;
-    }
-
-    private static class HLODER {
-        private static final L INSTANCE = new L();
-    }
-
-    private static final class MLEVEL {
+    public static final class MLEVEL {
         public static final int VERBOSE = 0x1;
         public static final int DEBUG = 0x2;
         public static final int INFO = 0x3;
@@ -1499,4 +1510,5 @@ public final class L {
         public static final int ERROR = 0x5;
         public static final int WTF = 0x6;
     }
+
 }
