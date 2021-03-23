@@ -54,5 +54,5 @@ tasks.withType(Javadoc) {
 
 dependencies {
     // 主题
-    implementation 'com.qmuiteam:qmui:1.4.0'
+    api 'com.qmuiteam:qmui:1.4.0'
 }

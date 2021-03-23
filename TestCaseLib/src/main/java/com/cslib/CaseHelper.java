@@ -3,12 +3,14 @@ package com.cslib;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 
 import com.cslib.defcase.ETestCase;
 import com.cslib.defcase.ETestSuite;
 import com.cslib.page.ECaseHolder;
 import com.cslib.page.ListPage;
 import com.cslib.utils.ClazzUtils;
+import com.cslib.utils.L;
 
 import java.util.List;
 
@@ -45,9 +47,12 @@ public class CaseHelper {
         ETestSuite testSuite = new ETestSuite(suiteName);
         List<String> suiteClazz = ClazzUtils.getClasseNameByPkgPath(ctx, pkgPath);
         for (String cls : suiteClazz) {
-            testSuite.addCase((ETestCase) ClazzUtils.newInstance(cls));
+            L.i(cls);
+            // 支持Java 8+ Lambda 表达式
+            if (!TextUtils.isEmpty(cls)&&!cls.contains("-$$Lambda$")){
+                testSuite.addCase((ETestCase) ClazzUtils.newInstance(cls));
+            }
         }
-//        CaseHelper.addSuite(devCases);
         if (testSuite != null) {
             ECaseHolder.getInstance().addSuite(testSuite);
         }

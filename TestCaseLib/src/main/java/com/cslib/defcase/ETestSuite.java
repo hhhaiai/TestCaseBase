@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -21,6 +22,7 @@ public class ETestSuite {
     public ETestSuite() {
         this("");
     }
+
     public ETestSuite(String name) {
         if (TextUtils.isEmpty(name)) {
             this.mName = getClass().getName();
@@ -30,9 +32,11 @@ public class ETestSuite {
     }
 
     public void addCase(ETestCase caze) {
-        String caseName = caze.getName();
-        if (!caseMap.containsKey(caseName)) {
-            caseMap.put(caseName, caze);
+        if (caze != null) {
+            String caseName = caze.getName();
+            if (!caseMap.containsKey(caseName)) {
+                caseMap.put(caseName, caze);
+            }
         }
     }
 
@@ -57,5 +61,5 @@ public class ETestSuite {
     }
 
     private String mName;
-    private Map<String, ETestCase> caseMap = new HashMap<String, ETestCase>();
+    private Map<String, ETestCase> caseMap = new ConcurrentHashMap<String, ETestCase>();
 }
