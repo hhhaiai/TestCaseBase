@@ -10,7 +10,6 @@ import com.cslib.defcase.ETestSuite;
 import com.cslib.page.ECaseHolder;
 import com.cslib.page.ListPage;
 import com.cslib.utils.ClazzUtils;
-import com.cslib.utils.L;
 
 import java.util.List;
 
@@ -47,7 +46,6 @@ public class CaseHelper {
         ETestSuite testSuite = new ETestSuite(suiteName);
         List<String> suiteClazz = ClazzUtils.getClasseNameByPkgPath(ctx, pkgPath);
         for (String cls : suiteClazz) {
-            L.i(cls);
             // 支持Java 8+ Lambda 表达式
             if (!TextUtils.isEmpty(cls)&&!cls.contains("-$$Lambda$")){
                 testSuite.addCase((ETestCase) ClazzUtils.newInstance(cls));
