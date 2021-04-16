@@ -1,4 +1,4 @@
-package com.cslib.cuscase;
+package me.hhhaiai.testcaselib.cuscase;
 
 import java.io.Serializable;
 

@@ -1,8 +1,7 @@
-package com.cslib.defcase;
+package me.hhhaiai.testcaselib.defcase;
 
 import android.text.TextUtils;
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;

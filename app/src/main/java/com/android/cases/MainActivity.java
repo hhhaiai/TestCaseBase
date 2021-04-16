@@ -5,17 +5,15 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 
-import com.android.cases.case1.ETestCase1;
-import com.android.cases.case1.ETestCase2;
-import com.android.cases.case1.ETestCase3;
 import com.android.cases.case2.GoHomeCase;
-import com.cslib.CaseHelper;
-import com.cslib.cuscase.ECaseManager;
-import com.cslib.defcase.ETestCase;
-import com.cslib.defcase.ETestSuite;
-import com.cslib.utils.L;
 
 import java.util.Set;
+
+import me.hhhaiai.testcaselib.CaseHelper;
+import me.hhhaiai.testcaselib.cuscase.ECaseManager;
+import me.hhhaiai.testcaselib.defcase.ETestCase;
+import me.hhhaiai.testcaselib.defcase.ETestSuite;
+import me.hhhaiai.testcaselib.utils.L;
 
 
 /**

@@ -1,6 +1,7 @@
 package com.android.cases.case2;
 
-import com.cslib.defcase.ETestCase;
+
+import me.hhhaiai.testcaselib.defcase.ETestCase;
 
 public class TestCase2 extends ETestCase {
     public TestCase2() {

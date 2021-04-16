@@ -1,4 +1,4 @@
-package com.cslib.utils;
+package me.hhhaiai.testcaselib.utils;
 
 import android.content.Context;
 import android.os.Build;
@@ -13,7 +13,7 @@ import java.util.List;
 
 import dalvik.system.DexFile;
 
-public class ClazzUtils {
+public class TcaseClazzUtils {
 
 
     private static Method forName = null;
@@ -26,7 +26,7 @@ public class ClazzUtils {
     private static Method newInstance = null;
 
 
-    private ClazzUtils() {
+    private TcaseClazzUtils() {
         // android p/9以上设备，使用元反射
 //        if (SDK_INT > 27) {
         try {
@@ -355,7 +355,7 @@ public class ClazzUtils {
                 result = getClassByForName(name);
             }
             if (result == null) {
-                result = getaClassByLoader(name, ClazzUtils.class.getClassLoader());
+                result = getaClassByLoader(name, TcaseClazzUtils.class.getClassLoader());
             }
             if (result == null) {
                 result = getClassByf(name);

@@ -1,14 +1,14 @@
-package com.cslib.page;
+package me.hhhaiai.testcaselib.page;
 
-
-import com.cslib.defcase.ETestCase;
-import com.cslib.defcase.ETestSuite;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import me.hhhaiai.testcaselib.defcase.ETestCase;
+import me.hhhaiai.testcaselib.defcase.ETestSuite;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.

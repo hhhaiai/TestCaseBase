@@ -1,6 +1,7 @@
 package com.android.cases.case2;
 
-import com.cslib.cuscase.ECase;
+
+import me.hhhaiai.testcaselib.cuscase.ECase;
 
 public class GoHomeCase implements ECase {
     @Override

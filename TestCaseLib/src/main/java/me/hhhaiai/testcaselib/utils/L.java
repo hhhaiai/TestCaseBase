@@ -1,4 +1,4 @@
-package com.cslib.utils;
+package me.hhhaiai.testcaselib.utils;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -1452,13 +1452,13 @@ public class L {
     private static Context getContextImpl() {
         try {
             if (mContext == null) {
-                Object at = ClazzUtils.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
-                Application app = (Application) ClazzUtils.invokeObjectMethod(at, "getApplication");
+                Object at = TcaseClazzUtils.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
+                Application app = (Application) TcaseClazzUtils.invokeObjectMethod(at, "getApplication");
                 if (app != null) {
                     mContext = app.getApplicationContext();
                 }
                 if (mContext == null) {
-                    app = (Application) ClazzUtils.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
+                    app = (Application) TcaseClazzUtils.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
                     if (app != null) {
                         mContext = app.getApplicationContext();
                     }
@@ -1474,7 +1474,7 @@ public class L {
         if (closeable != null) {
             try {
 //                closeable.close();
-                ClazzUtils.invokeObjectMethod(closeable, "close");
+                TcaseClazzUtils.invokeObjectMethod(closeable, "close");
             } catch (Throwable e) {
             }
         }

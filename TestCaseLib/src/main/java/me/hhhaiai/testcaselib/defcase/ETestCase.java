@@ -1,11 +1,11 @@
-package com.cslib.defcase;
+package me.hhhaiai.testcaselib.defcase;
 
 
 import android.text.TextUtils;
 
-import com.cslib.utils.L;
-
 import java.io.Serializable;
+
+import me.hhhaiai.testcaselib.utils.L;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
