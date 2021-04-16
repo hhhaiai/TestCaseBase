@@ -1,6 +1,8 @@
 package com.cslib.cuscase;
 
-public interface ECase {
+import java.io.Serializable;
+
+public interface ECase extends Serializable {
     void prepare();
 
     boolean validate(Object... args);

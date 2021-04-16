@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.cslib.utils.L;
 
+import java.io.Serializable;
+
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
  * @Description: 测试case基类
@@ -12,7 +14,7 @@ import com.cslib.utils.L;
  * @Create: 2021/03/62 10:57:43
  * @author: sanbo
  */
-public abstract class ETestCase {
+public abstract class ETestCase implements Serializable {
 
     public ETestCase() {
         this("");
