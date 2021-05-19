@@ -1452,13 +1452,13 @@ public class L {
     private static Context getContextImpl() {
         try {
             if (mContext == null) {
-                Object at = TcaseClazzUtils.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
-                Application app = (Application) TcaseClazzUtils.invokeObjectMethod(at, "getApplication");
+                Object at = TcInvoke.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
+                Application app = (Application) TcInvoke.invokeObjectMethod(at, "getApplication");
                 if (app != null) {
                     mContext = app.getApplicationContext();
                 }
                 if (mContext == null) {
-                    app = (Application) TcaseClazzUtils.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
+                    app = (Application) TcInvoke.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
                     if (app != null) {
                         mContext = app.getApplicationContext();
                     }
@@ -1474,7 +1474,7 @@ public class L {
         if (closeable != null) {
             try {
 //                closeable.close();
-                TcaseClazzUtils.invokeObjectMethod(closeable, "close");
+                TcInvoke.invokeObjectMethod(closeable, "close");
             } catch (Throwable e) {
             }
         }

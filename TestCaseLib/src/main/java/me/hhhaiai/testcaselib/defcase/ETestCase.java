@@ -1,10 +1,13 @@
 package me.hhhaiai.testcaselib.defcase;
 
 
+import android.content.Context;
 import android.text.TextUtils;
 
 import java.io.Serializable;
 
+import me.hhhaiai.testcaselib.page.ListPage;
+import me.hhhaiai.testcaselib.utils.EContext;
 import me.hhhaiai.testcaselib.utils.L;
 
 /**
@@ -33,6 +36,10 @@ public abstract class ETestCase implements Serializable {
 
     //测试内容需要复写
     public abstract boolean predicate();
+
+    public Context getContext() {
+        return EContext.getContext(ListPage.mContext);
+    }
 
     // 测试实例，对外提供方法
     public boolean validate() {

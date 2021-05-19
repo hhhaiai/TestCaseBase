@@ -31,7 +31,6 @@ public class ListPage extends Activity {
     ExpandableListView listView;
     List<ETestSuite> allSuites;
     public static Context mContext = null;
-    public static boolean isOn = false;
 
 
     @Override
@@ -55,13 +54,11 @@ public class ListPage extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        isOn = true;
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        isOn = false;
     }
 
 

@@ -11,7 +11,8 @@ import me.hhhaiai.testcaselib.defcase.ETestCase;
 import me.hhhaiai.testcaselib.defcase.ETestSuite;
 import me.hhhaiai.testcaselib.page.ECaseHolder;
 import me.hhhaiai.testcaselib.page.ListPage;
-import me.hhhaiai.testcaselib.utils.TcaseClazzUtils;
+import me.hhhaiai.testcaselib.utils.EContext;
+import me.hhhaiai.testcaselib.utils.TcInvoke;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -44,11 +45,11 @@ public class CaseHelper {
      */
     public static void addSuite(Context ctx, String suiteName, String pkgPath) {
         ETestSuite testSuite = new ETestSuite(suiteName);
-        List<String> suiteClazz = TcaseClazzUtils.getClasseNameByPkgPath(ctx, pkgPath);
+        List<String> suiteClazz = TcInvoke.getClasseNameByPkgPath(ctx, pkgPath);
         for (String cls : suiteClazz) {
             // 支持Java 8+ Lambda 表达式
-            if (!TextUtils.isEmpty(cls)&&!cls.contains("-$$Lambda$")){
-                testSuite.addCase((ETestCase) TcaseClazzUtils.newInstance(cls));
+            if (!TextUtils.isEmpty(cls) && !cls.contains("-$$Lambda$")) {
+                testSuite.addCase((ETestCase) TcInvoke.newInstance(cls));
             }
         }
         if (testSuite != null) {
@@ -65,11 +66,7 @@ public class CaseHelper {
 
 
     public static Context getCaseContext() {
-        if (ListPage.isOn) {
-            return ListPage.mContext;
-        } else {
-            return null;
-        }
+        return EContext.getContext(ListPage.mContext);
     }
 
 

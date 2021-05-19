@@ -13,7 +13,7 @@ import java.util.List;
 
 import dalvik.system.DexFile;
 
-public class TcaseClazzUtils {
+public class TcInvoke {
 
 
     private static Method forName = null;
@@ -26,7 +26,7 @@ public class TcaseClazzUtils {
     private static Method newInstance = null;
 
 
-    private TcaseClazzUtils() {
+    private TcInvoke() {
         // android p/9以上设备，使用元反射
 //        if (SDK_INT > 27) {
         try {
@@ -355,7 +355,7 @@ public class TcaseClazzUtils {
                 result = getClassByForName(name);
             }
             if (result == null) {
-                result = getaClassByLoader(name, TcaseClazzUtils.class.getClassLoader());
+                result = getaClassByLoader(name, TcInvoke.class.getClassLoader());
             }
             if (result == null) {
                 result = getClassByf(name);
