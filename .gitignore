@@ -67,3 +67,5 @@ lint/
 
 .DS_Store
 local.properties
+*.classpath
+*.settings/
