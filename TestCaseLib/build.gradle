@@ -2,6 +2,8 @@ plugins {
     id 'com.android.library'
 }
 
+def tcl_versionCode = "5"
+def tcl_versionName = "1.4"
 android {
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
@@ -9,8 +11,9 @@ android {
     defaultConfig {
         minSdkVersion 14
         targetSdkVersion 30
-        versionCode 4
-        versionName "1.4"
+        versionCode Integer.parseInt("${tcl_versionCode}")
+        versionName "${tcl_versionName}"
+        buildConfigField "String", "TCL_VERSION", "\"${tcl_versionName}\""
     }
 
     buildTypes {

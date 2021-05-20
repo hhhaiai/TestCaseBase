@@ -6,6 +6,7 @@ import android.text.TextUtils;
 
 import java.io.Serializable;
 
+import me.hhhaiai.testcaselib.BuildConfig;
 import me.hhhaiai.testcaselib.page.ListPage;
 import me.hhhaiai.testcaselib.utils.EContext;
 import me.hhhaiai.testcaselib.utils.L;
@@ -39,6 +40,10 @@ public abstract class ETestCase implements Serializable {
 
     public Context getContext() {
         return EContext.getContext(ListPage.mContext);
+    }
+
+    public String getTestCaseLibVersion() {
+        return BuildConfig.TCL_VERSION;
     }
 
     // 测试实例，对外提供方法
