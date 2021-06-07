@@ -2,6 +2,7 @@ package me.hhhaiai.testcaselib.page;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,7 +31,7 @@ import me.hhhaiai.testcaselib.utils.L;
 public class ListPage extends Activity {
     ExpandableListView listView;
     List<ETestSuite> allSuites;
-    public static Context mContext = null;
+    public static Activity mContext = null;
 
 
     @Override
@@ -126,7 +127,13 @@ public class ListPage extends Activity {
             test.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    child.prepare();
+                    try {
+                        new Thread(() -> {
+                            child.prepare();
+                        }).start();
+                    } catch (Throwable e) {
+                        L.e(e);
+                    }
                 }
             });
 
@@ -134,10 +141,14 @@ public class ListPage extends Activity {
             validate.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    boolean validate = child.validate();
-                    final int color = v.getContext().getResources().getColor(validate ?
-                            android.R.color.holo_green_light : android.R.color.holo_red_light);
-                    childView.setBackgroundColor(color);
+                    try {
+                        boolean validate = child.validate();
+                        final int color = v.getContext().getResources().getColor(validate ?
+                                android.R.color.holo_green_light : android.R.color.holo_red_light);
+                        childView.setBackgroundColor(color);
+                    } catch (Throwable e) {
+                        L.e(e);
+                    }
                 }
             });
 

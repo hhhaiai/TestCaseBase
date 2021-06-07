@@ -1,6 +1,7 @@
 package me.hhhaiai.testcaselib.defcase;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
 
@@ -40,6 +41,10 @@ public abstract class ETestCase implements Serializable {
 
     public Context getContext() {
         return EContext.getContext(ListPage.mContext);
+    }
+
+    public Activity getActivity() {
+        return ListPage.mContext;
     }
 
     public String getTestCaseLibVersion() {
