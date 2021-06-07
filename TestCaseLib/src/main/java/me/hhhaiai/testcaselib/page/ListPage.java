@@ -1,8 +1,6 @@
 package me.hhhaiai.testcaselib.page;
 
 import android.app.Activity;
-import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,13 +125,15 @@ public class ListPage extends Activity {
             test.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    try {
-                        new Thread(() -> {
+
+                    new Thread(() -> {
+                        try {
                             child.prepare();
-                        }).start();
-                    } catch (Throwable e) {
-                        L.e(e);
-                    }
+                        } catch (Throwable e) {
+                            L.e(e);
+                        }
+                    }).start();
+
                 }
             });
 

@@ -34,10 +34,10 @@ public abstract class ETestCase implements Serializable {
     }
 
     // 测试准备,可以设置响应环境.可不实现
-    public abstract void prepare();
+    public abstract void prepare() throws Throwable;
 
     //测试内容需要复写
-    public abstract boolean predicate();
+    public abstract boolean predicate() throws Throwable;
 
     public Context getContext() {
         return EContext.getContext(ListPage.mContext);

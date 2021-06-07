@@ -10,9 +10,9 @@ import me.hhhaiai.testcaselib.page.ListPage;
 import me.hhhaiai.testcaselib.utils.EContext;
 
 public interface ECase extends Serializable {
-    void prepare();
+    void prepare() throws Throwable;
 
-    boolean validate(Object... args);
+    boolean validate(Object... args) throws Throwable;
 
     public static Context getContext() {
         return EContext.getContext(ListPage.mContext);
