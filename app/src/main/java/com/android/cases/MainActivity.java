@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 
 import com.android.cases.case2.GoHomeCase;
 
@@ -28,10 +29,23 @@ public class MainActivity extends Activity {
     private Context mContext = null;
 
     @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(newBase);
+        mContext = this;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mContext = this;
+        Button btn = new Button(this);
+        btn.setText("大按钮，点击开始测试");
+        setContentView(btn);
+        btn.setOnClickListener((v) -> {
+            Context c = CaseHelper.getCaseContext();
+            L.i("context: " + c);
+            CaseHelper.openCasePage(this);
+        });
+
     }
 
     @Override
@@ -73,12 +87,12 @@ public class MainActivity extends Activity {
         for (final Class<?> aCase : cases) {
             tname.addCase(new ETestCase(aCase.getSimpleName()) {
                 @Override
-                public void prepare() {
+                public void prepare() throws Throwable {
                     ECaseManager.getInstance().getCase(aCase).prepare();
                 }
 
                 @Override
-                public boolean predicate() {
+                public boolean predicate() throws Throwable {
                     return ECaseManager.getInstance().getCase(aCase).validate();
                 }
             });
@@ -86,15 +100,4 @@ public class MainActivity extends Activity {
         CaseHelper.addSuite(tname);
     }
 
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btnGG:
-                Context c = CaseHelper.getCaseContext();
-                L.i("context: " + c);
-                CaseHelper.openCasePage(this);
-                break;
-            default:
-                break;
-        }
-    }
 }
