@@ -1,11 +1,10 @@
 package me.hhhaiai.testcaselib.cuscase;
 
+import me.hhhaiai.testcaselib.utils.L;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import me.hhhaiai.testcaselib.utils.L;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -44,10 +43,8 @@ public class ECaseManager {
         private static final ECaseManager INSTANCE = new ECaseManager();
     }
 
-    private ECaseManager() {
-    }
+    private ECaseManager() {}
 
     /********************* get instance end **************************/
     private Map<Class<?>, ECase> caseMap = new ConcurrentHashMap<Class<?>, ECase>();
-
 }

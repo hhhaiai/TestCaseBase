@@ -1,16 +1,15 @@
 package me.hhhaiai.testcaselib.defcase;
 
-
 import android.app.Activity;
 import android.content.Context;
 import android.text.TextUtils;
-
-import java.io.Serializable;
 
 import me.hhhaiai.testcaselib.BuildConfig;
 import me.hhhaiai.testcaselib.page.ListPage;
 import me.hhhaiai.testcaselib.utils.EContext;
 import me.hhhaiai.testcaselib.utils.L;
+
+import java.io.Serializable;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -36,7 +35,7 @@ public abstract class ETestCase implements Serializable {
     // 测试准备,可以设置响应环境.可不实现
     public abstract void prepare() throws Throwable;
 
-    //测试内容需要复写
+    // 测试内容需要复写
     public abstract boolean predicate() throws Throwable;
 
     public Context getContext() {
@@ -59,7 +58,6 @@ public abstract class ETestCase implements Serializable {
         } catch (Throwable e) {
             validate = false;
             L.e(e);
-
         }
         if (!validate) {
             L.e("[%s] 测试不通过. ", mName);
@@ -67,7 +65,7 @@ public abstract class ETestCase implements Serializable {
         return validate;
     }
 
-    //case 名称
+    // case 名称
     public String getName() {
         return mName;
     }

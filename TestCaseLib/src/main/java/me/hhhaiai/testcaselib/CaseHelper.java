@@ -5,14 +5,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import java.util.List;
-
 import me.hhhaiai.testcaselib.defcase.ETestCase;
 import me.hhhaiai.testcaselib.defcase.ETestSuite;
 import me.hhhaiai.testcaselib.page.ECaseHolder;
 import me.hhhaiai.testcaselib.page.ListPage;
 import me.hhhaiai.testcaselib.utils.EContext;
 import me.hhhaiai.testcaselib.utils.TcInvoke;
+
+import java.util.List;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -64,10 +64,7 @@ public class CaseHelper {
         }
     }
 
-
     public static Context getCaseContext() {
         return EContext.getContext(ListPage.mContext);
     }
-
-
 }

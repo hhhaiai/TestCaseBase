@@ -20,20 +20,25 @@ public class EContext {
     private static Context getContextImpl() {
         try {
             if (mContext == null) {
-                Object at = TcInvoke.invokeStaticMethod("android.app.ActivityThread", "currentActivityThread");
+                Object at =
+                        TcInvoke.invokeStaticMethod(
+                                "android.app.ActivityThread", "currentActivityThread");
                 Application app = (Application) TcInvoke.invokeObjectMethod(at, "getApplication");
                 if (app != null) {
                     mContext = app.getApplicationContext();
                 }
                 if (mContext == null) {
-                    app = (Application) TcInvoke.invokeStaticMethod("android.app.AppGlobals", "getInitialApplication");
+                    app =
+                            (Application)
+                                    TcInvoke.invokeStaticMethod(
+                                            "android.app.AppGlobals", "getInitialApplication");
                     if (app != null) {
                         mContext = app.getApplicationContext();
                     }
                 }
             }
         } catch (Throwable igone) {
-//            L.e(igone);
+            //            L.e(igone);
         }
 
         return mContext;

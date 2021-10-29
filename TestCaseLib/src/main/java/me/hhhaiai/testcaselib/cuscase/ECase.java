@@ -3,11 +3,11 @@ package me.hhhaiai.testcaselib.cuscase;
 import android.app.Activity;
 import android.content.Context;
 
-import java.io.Serializable;
-
 import me.hhhaiai.testcaselib.BuildConfig;
 import me.hhhaiai.testcaselib.page.ListPage;
 import me.hhhaiai.testcaselib.utils.EContext;
+
+import java.io.Serializable;
 
 public interface ECase extends Serializable {
     void prepare() throws Throwable;

@@ -1,14 +1,13 @@
 package me.hhhaiai.testcaselib.page;
 
+import me.hhhaiai.testcaselib.defcase.ETestCase;
+import me.hhhaiai.testcaselib.defcase.ETestSuite;
 
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
-
-import me.hhhaiai.testcaselib.defcase.ETestCase;
-import me.hhhaiai.testcaselib.defcase.ETestSuite;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -18,7 +17,6 @@ import me.hhhaiai.testcaselib.defcase.ETestSuite;
  * @author: sanbo
  */
 public class ECaseHolder {
-
 
     public List<ETestSuite> getAllSuites() {
         CopyOnWriteArrayList<ETestSuite> result = new CopyOnWriteArrayList<ETestSuite>();
@@ -31,13 +29,12 @@ public class ECaseHolder {
         return result;
     }
 
-
     public void addSuite(ETestSuite suite) {
         String suiteName = suite.getName();
         if (kvs.containsKey(suiteName)) {
             ETestSuite memorySuite = kvs.get(suiteName);
             Map<String, ETestCase> newCase = suite.getAllCasesMap();
-            //compare and marge
+            // compare and marge
             if (newCase.size() > 0) {
                 Iterator<Map.Entry<String, ETestCase>> newIterator = newCase.entrySet().iterator();
                 ETestCase value = null;
@@ -64,11 +61,9 @@ public class ECaseHolder {
         private static final ECaseHolder INSTANCE = new ECaseHolder();
     }
 
-    private ECaseHolder() {
-    }
+    private ECaseHolder() {}
 
     /********************* get instance end **************************/
 
     private Map<String, ETestSuite> kvs = new HashMap<String, ETestSuite>();
-
 }

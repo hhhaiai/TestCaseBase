@@ -1,6 +1,5 @@
 package com.android.cases.case3;
 
-
 import me.hhhaiai.testcaselib.defcase.ETestCase;
 
 public class TestCase3 extends ETestCase {
@@ -9,12 +8,10 @@ public class TestCase3 extends ETestCase {
     }
 
     @Override
-    public void prepare() {
-    }
+    public void prepare() {}
 
     @Override
     public boolean predicate() {
         return true;
     }
-
 }

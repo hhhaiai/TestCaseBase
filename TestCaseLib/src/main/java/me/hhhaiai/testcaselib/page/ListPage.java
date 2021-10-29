@@ -11,13 +11,12 @@ import android.widget.ExpandableListView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
-
 import me.hhhaiai.testcaselib.R;
 import me.hhhaiai.testcaselib.defcase.ETestCase;
 import me.hhhaiai.testcaselib.defcase.ETestSuite;
 import me.hhhaiai.testcaselib.utils.L;
 
+import java.util.List;
 
 /**
  * @Copyright © 2021 analsys Inc. All rights reserved.
@@ -30,7 +29,6 @@ public class ListPage extends Activity {
     ExpandableListView listView;
     List<ETestSuite> allSuites;
     public static Activity mContext = null;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,7 +47,6 @@ public class ListPage extends Activity {
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -59,7 +56,6 @@ public class ListPage extends Activity {
     protected void onPause() {
         super.onPause();
     }
-
 
     private class MyAdapter extends BaseExpandableListAdapter {
 
@@ -99,7 +95,8 @@ public class ListPage extends Activity {
         }
 
         @Override
-        public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+        public View getGroupView(
+                int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
             View parentView = View.inflate(parent.getContext(), R.layout.parent_layout, null);
             TextView t = parentView.findViewById(R.id.text);
             t.setText(getGroup(groupPosition).getName());
@@ -114,7 +111,12 @@ public class ListPage extends Activity {
         }
 
         @Override
-        public View getChildView(int groupPosition, int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
+        public View getChildView(
+                int groupPosition,
+                int childPosition,
+                boolean isLastChild,
+                View convertView,
+                ViewGroup parent) {
             final ETestCase child = getChild(groupPosition, childPosition);
 
             final View childView = View.inflate(parent.getContext(), R.layout.child_layout, null);
@@ -122,35 +124,43 @@ public class ListPage extends Activity {
             title.setText(child.getName());
 
             Button test = childView.findViewById(R.id.btnPrepare);
-            test.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
+            test.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
 
-                    new Thread(() -> {
-                        try {
-                            child.prepare();
-                        } catch (Throwable e) {
-                            L.e(e);
+                            new Thread(
+                                            () -> {
+                                                try {
+                                                    child.prepare();
+                                                } catch (Throwable e) {
+                                                    L.e(e);
+                                                }
+                                            })
+                                    .start();
                         }
-                    }).start();
-
-                }
-            });
+                    });
 
             Button validate = childView.findViewById(R.id.btnValidate);
-            validate.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        boolean validate = child.validate();
-                        final int color = v.getContext().getResources().getColor(validate ?
-                                android.R.color.holo_green_light : android.R.color.holo_red_light);
-                        childView.setBackgroundColor(color);
-                    } catch (Throwable e) {
-                        L.e(e);
-                    }
-                }
-            });
+            validate.setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            try {
+                                boolean validate = child.validate();
+                                final int color =
+                                        v.getContext()
+                                                .getResources()
+                                                .getColor(
+                                                        validate
+                                                                ? android.R.color.holo_green_light
+                                                                : android.R.color.holo_red_light);
+                                childView.setBackgroundColor(color);
+                            } catch (Throwable e) {
+                                L.e(e);
+                            }
+                        }
+                    });
 
             return childView;
         }
