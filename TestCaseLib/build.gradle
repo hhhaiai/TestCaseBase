@@ -9,7 +9,7 @@ android {
     buildToolsVersion "30.0.3"
 
     defaultConfig {
-        minSdkVersion 14
+        minSdkVersion 15
         targetSdkVersion 30
         versionCode Integer.parseInt("${tcl_versionCode}")
         versionName "${tcl_versionName}"
